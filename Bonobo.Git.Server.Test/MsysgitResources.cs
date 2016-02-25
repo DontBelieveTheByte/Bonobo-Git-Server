@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Bonobo.Git.Server.Test
 {
@@ -22,18 +18,9 @@ namespace Bonobo.Git.Server.Test
             PushBranchError,
         }
 
+        private readonly Dictionary<Definition, string> _resources;
 
-        private readonly Dictionary<Definition, String> _resources;
-
-
-        public string this[Definition definition]
-        {
-            get
-            {
-                return _resources[definition];
-            }
-        }
-
+        public string this[Definition definition] => _resources[definition];
 
         public MsysgitResources(string version)
         {
@@ -51,19 +38,19 @@ namespace Bonobo.Git.Server.Test
                 { Definition.PushBranchError, "To {0}\n * [new branch]      TestBranch -> TestBranch\n" },
             };
 
-            if (String.Equals(version, "1.7.8") 
-             || String.Equals(version, "1.7.9") 
-             || String.Equals(version, "1.8.0") 
-             || String.Equals(version, "1.8.1.2") 
-             || String.Equals(version, "1.8.3"))
+            if (string.Equals(version, "1.7.8") 
+             || string.Equals(version, "1.7.9") 
+             || string.Equals(version, "1.8.0") 
+             || string.Equals(version, "1.8.1.2") 
+             || string.Equals(version, "1.8.3"))
             {
                 _resources[Definition.CloneRepositoryOutput] = "Cloning into 'Integration'...\n";
                 _resources[Definition.CloneRepositoryError] = "";
                 _resources[Definition.CloneEmptyRepositoryOutput] = "Cloning into 'Integration'...\n";
             }
 
-            if (String.Equals(version, "1.9.5")
-             || String.Equals(version, "2.6.1"))
+            if (string.Equals(version, "1.9.5")
+             || string.Equals(version, "2.6.1"))
             {
                 _resources[Definition.CloneEmptyRepositoryOutput] = "";
                 _resources[Definition.CloneEmptyRepositoryError] = "Cloning into 'Integration'...\nwarning: You appear to have cloned an empty repository.\n";

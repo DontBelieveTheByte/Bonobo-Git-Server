@@ -16,19 +16,19 @@ namespace Bonobo.Git.Server.Test
     {
         private const string RepositoryName = "Integration";
         private const string WorkingDirectory = @"..\..\..\Test\Integration";
-        private readonly static string RepositoryDirectory = Path.Combine(WorkingDirectory, RepositoryName);
+        private static readonly string RepositoryDirectory = Path.Combine(WorkingDirectory, RepositoryName);
         private const string GitPath = @"..\..\..\Gits\{0}\bin\git.exe";
-        private readonly static string ServerRepositoryPath = Path.Combine(@"..\..\..\Bonobo.Git.Server\App_Data\Repositories", RepositoryName);
-        private readonly static string ServerRepositoryBackupPath = Path.Combine(@"..\..\..\Test\", RepositoryName, "Backup");
-        private readonly static string[] GitVersions = { "1.7.4", "1.7.6", "1.7.7.1", "1.7.8", "1.7.9", "1.8.0", "1.8.1.2", "1.8.3", "1.9.5", "2.6.1" };
-        private readonly static string Credentials = "admin:admin@";
-        private readonly static string RepositoryUrl = "http://{0}localhost:50287/Integration{1}";
-        private readonly static string RepositoryUrlWithoutCredentials = String.Format(RepositoryUrl, String.Empty, String.Empty);
-        private readonly static string RepositoryUrlWithCredentials = String.Format(RepositoryUrl, Credentials, ".git");
+        private static readonly string ServerRepositoryPath = Path.Combine(@"..\..\..\Bonobo.Git.Server\App_Data\Repositories", RepositoryName);
+        private static readonly string ServerRepositoryBackupPath = Path.Combine(@"..\..\..\Test\", RepositoryName, "Backup");
+        private static readonly string[] GitVersions = { "1.7.4", "1.7.6", "1.7.7.1", "1.7.8", "1.7.9", "1.8.0", "1.8.1.2", "1.8.3", "1.9.5", "2.6.1" };
+        private const string Credentials = "admin:admin@";
+        private const string RepositoryUrl = "http://{0}localhost:50287/Integration{1}";
+        private static readonly string RepositoryUrlWithoutCredentials = string.Format(RepositoryUrl, string.Empty, string.Empty);
+        private static readonly string RepositoryUrlWithCredentials = string.Format(RepositoryUrl, Credentials, ".git");
 
-        private readonly static Dictionary<string, Dictionary<string, string>> Resources = new Dictionary<string, Dictionary<string, string>>
+        private static readonly Dictionary<string, Dictionary<string, string>> Resources = new Dictionary<string, Dictionary<string, string>>
         {
-            { String.Format(GitPath,  "1.7.4"), new Dictionary<string, string> 
+            { string.Format(GitPath,  "1.7.4"), new Dictionary<string, string> 
             {
                 { "Key", "Value" }
             }}
@@ -40,7 +40,7 @@ namespace Bonobo.Git.Server.Test
         {
             if (!Directory.Exists(ServerRepositoryPath))
             {
-                Assert.Fail(string.Format("Please create a repository called Integration in '{0}'.", Path.GetFullPath(ServerRepositoryPath)));
+                Assert.Fail("Please create a repository called Integration in '{0}'.", Path.GetFullPath(ServerRepositoryPath));
             }
             DeleteDirectory(WorkingDirectory);
         }
@@ -48,11 +48,11 @@ namespace Bonobo.Git.Server.Test
         [TestMethod, TestCategory(Definitions.Integration)]
         public void Run()
         {
-            bool has_any_test_run = false;
-            List<string> gitpaths = new List<string>();
+            var hasAnyTestRun = false;
+            var gitpaths = new List<string>();
             foreach (var version in GitVersions)
             {
-                var git = String.Format(GitPath, version);
+                var git = string.Format(GitPath, version);
                 if (!File.Exists(git))
                 {
                     gitpaths.Add(git);
@@ -79,58 +79,58 @@ namespace Bonobo.Git.Server.Test
                     RestoreServerRepository();
                     DeleteDirectory(WorkingDirectory);
                 }
-                has_any_test_run = true;
+                hasAnyTestRun = true;
             }
 
-            if (!has_any_test_run)
+            if (!hasAnyTestRun)
             {
-                Assert.Fail(string.Format("Please ensure that you have at least one git installation in '{0}'.", string.Join("', '", gitpaths.Select(n => Path.GetFullPath(n)))));
+                Assert.Fail("Please ensure that you have at least one git installation in '{0}'.", string.Join("', '", gitpaths.Select(n => Path.GetFullPath(n))));
             }
 
         }
 
-        private void PullBranch(string git, MsysgitResources resources)
+        private static void PullBranch(string git, MsysgitResources resources)
         {
             var result = RunGit(git, "pull origin TestBranch");
 
             Assert.AreEqual("Already up-to-date.\n", result.Item1);
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PullBranchError], RepositoryUrlWithoutCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PullBranchError], RepositoryUrlWithoutCredentials), result.Item2);
         }
 
-        private void PullTag(string git, MsysgitResources resources)
+        private static void PullTag(string git, MsysgitResources resources)
         {
             var result = RunGit(git, "fetch");
 
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PullTagError], RepositoryUrlWithoutCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PullTagError], RepositoryUrlWithoutCredentials), result.Item2);
         }
 
-        private void PullRepository(string git, MsysgitResources resources)
+        private static void PullRepository(string git, MsysgitResources resources)
         {
             DeleteDirectory(RepositoryDirectory);
             Directory.CreateDirectory(RepositoryDirectory);
 
             RunGit(git, "init");
-            RunGit(git, String.Format("remote add origin {0}", RepositoryUrlWithCredentials));
+            RunGit(git, string.Format("remote add origin {0}", RepositoryUrlWithCredentials));
             var result = RunGit(git, "pull origin master");
 
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PullRepositoryError], RepositoryUrlWithoutCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PullRepositoryError], RepositoryUrlWithoutCredentials), result.Item2);
         }
 
-        private void CloneRepository(string git, MsysgitResources resources)
+        private static void CloneRepository(string git, MsysgitResources resources)
         {
             DeleteDirectory(RepositoryDirectory);
-            var result = RunGit(git, String.Format(String.Format("clone {0}", RepositoryUrlWithCredentials), RepositoryName), WorkingDirectory);
+            var result = RunGit(git, string.Format(string.Format("clone {0}", RepositoryUrlWithCredentials), RepositoryName), WorkingDirectory);
 
             Assert.AreEqual(resources[MsysgitResources.Definition.CloneRepositoryOutput], result.Item1);
             Assert.AreEqual(resources[MsysgitResources.Definition.CloneRepositoryError], result.Item2);
         }
 
-        private void PushBranch(string git, MsysgitResources resources)
+        private static void PushBranch(string git, MsysgitResources resources)
         {
             RunGit(git, "checkout -b \"TestBranch\"");
             var result = RunGit(git, "push origin TestBranch");
 
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PushBranchError], RepositoryUrlWithCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PushBranchError], RepositoryUrlWithCredentials), result.Item2);
         }
 
         private void PushTag(string git, MsysgitResources resources)
@@ -138,10 +138,10 @@ namespace Bonobo.Git.Server.Test
             RunGit(git, "tag -a v1.4 -m \"my version 1.4\"");
             var result = RunGit(git, "push --tags origin");
             
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PushTagError], RepositoryUrlWithCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PushTagError], RepositoryUrlWithCredentials), result.Item2);
         }
 
-        private void PushFiles(string git, MsysgitResources resources)
+        private static void PushFiles(string git, MsysgitResources resources)
         {
             CreateRandomFile(Path.Combine(RepositoryDirectory, "1.dat"), 10);
             CreateRandomFile(Path.Combine(RepositoryDirectory, "2.dat"), 1);
@@ -153,51 +153,51 @@ namespace Bonobo.Git.Server.Test
             RunGit(git, "commit -m \"Test Files Added\"");
             var result = RunGit(git, "push origin master");
 
-            Assert.AreEqual(String.Format(resources[MsysgitResources.Definition.PushFilesError], RepositoryUrlWithCredentials), result.Item2);
+            Assert.AreEqual(string.Format(resources[MsysgitResources.Definition.PushFilesError], RepositoryUrlWithCredentials), result.Item2);
         }
 
-        private void CloneEmptyRepository(string git, MsysgitResources resources)
+        private static void CloneEmptyRepository(string git, MsysgitResources resources)
         {
-            var result = RunGit(git, String.Format(String.Format("clone {0}", RepositoryUrlWithCredentials), RepositoryName), WorkingDirectory);
+            var result = RunGit(git, string.Format(string.Format("clone {0}", RepositoryUrlWithCredentials), RepositoryName), WorkingDirectory);
             
             Assert.AreEqual(resources[MsysgitResources.Definition.CloneEmptyRepositoryOutput], result.Item1);
             Assert.AreEqual(resources[MsysgitResources.Definition.CloneEmptyRepositoryError], result.Item2);
         }
 
 
-        private void RestoreServerRepository()
+        private static void RestoreServerRepository()
         {
             CopyOverrideDirectory(ServerRepositoryBackupPath, ServerRepositoryPath);
         }
 
-        private void BackupServerRepository()
+        private static void BackupServerRepository()
         {
             CopyOverrideDirectory(ServerRepositoryPath, ServerRepositoryBackupPath);
         }
 
-        private void CopyOverrideDirectory(string target, string destination)
+        private static void CopyOverrideDirectory(string target, string destination)
         {
             DeleteDirectory(destination);
             Directory.CreateDirectory(destination);
 
 
-            foreach (string dirPath in Directory.GetDirectories(target, "*", SearchOption.AllDirectories))
+            foreach (var dirPath in Directory.GetDirectories(target, "*", SearchOption.AllDirectories))
             {
                 Directory.CreateDirectory(dirPath.Replace(target, destination));
             }
 
-            foreach (string newPath in Directory.GetFiles(target, "*.*", SearchOption.AllDirectories))
+            foreach (var newPath in Directory.GetFiles(target, "*.*", SearchOption.AllDirectories))
             {
                 File.Copy(newPath, newPath.Replace(target, destination));
             }
         }
 
-        private Tuple<string, string> RunGit(string git, string arguments)
+        private static Tuple<string, string> RunGit(string git, string arguments)
         {
             return RunGit(git, arguments, RepositoryDirectory);
         }
 
-        private Tuple<string, string> RunGit(string git, string arguments, string workingDirectory)
+        private static Tuple<string, string> RunGit(string git, string arguments, string workingDirectory)
         {
             using (var process = new Process())
             {
@@ -217,15 +217,15 @@ namespace Bonobo.Git.Server.Test
             }
         }
 
-        private void CreateRandomFile(string fileName, int sizeInMb)
+        private static void CreateRandomFile(string fileName, int sizeInMb)
         {
             const int blockSize = 1024 * 8;
             const int blocksPerMb = (1024 * 1024) / blockSize;
-            byte[] data = new byte[blockSize];
-            Random rng = new Random();
-            using (FileStream stream = File.OpenWrite(fileName))
+            var data = new byte[blockSize];
+            var rng = new Random(DateTime.Now.Millisecond);
+            using (var stream = File.OpenWrite(fileName))
             {
-                for (int i = 0; i < sizeInMb * blocksPerMb; i++)
+                for (var i = 0; i < sizeInMb * blocksPerMb; i++)
                 {
                     rng.NextBytes(data);
                     stream.Write(data, 0, data.Length);
@@ -233,7 +233,7 @@ namespace Bonobo.Git.Server.Test
             }
         }
 
-        private void DeleteDirectory(string directoryPath)
+        private static void DeleteDirectory(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
                 return;

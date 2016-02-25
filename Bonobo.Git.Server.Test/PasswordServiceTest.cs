@@ -8,13 +8,13 @@ namespace Bonobo.Git.Server.Test
     [TestClass]
     public class PasswordServiceTest
     {
-        private const String DefaultAdminUserName = "admin";
-        private const String DefaultAdminPassword = "admin";
-        private const String DefaultAdminHash =
+        private const string DefaultAdminUserName = "admin";
+        private const string DefaultAdminPassword = "admin";
+        private const string DefaultAdminHash =
             "0CC52C6751CC92916C138D8D714F003486BF8516933815DFC11D6C3E36894BFA" +
             "044F97651E1F3EEBA26CDA928FB32DE0869F6ACFB787D5A33DACBA76D34473A3";
 
-        private const String Md5DefaultAdminHash = "21232F297A57A5A743894A0E4A801FC3";
+        private const string Md5DefaultAdminHash = "21232F297A57A5A743894A0E4A801FC3";
 
         [TestMethod]
         public void AdminDefaultPasswordIsSaltedSha512Hash()
@@ -31,14 +31,14 @@ namespace Bonobo.Git.Server.Test
         [TestMethod]
         public void InsertDefaultDataCommandUsesSaltedSha512Hash()
         {
-            var script = new Bonobo.Git.Server.Data.Update.InsertDefaultData();
+            var script = new InsertDefaultData();
             AssertSaltedSha512HashIsUsed(script);
         }
 
         [TestMethod]
         public void SqlServerInsertDefaultDataCommandUsesSaltedSha512Hash()
         {
-            var script = new Bonobo.Git.Server.Data.Update.SqlServer.InsertDefaultData();
+            var script = new Data.Update.SqlServer.InsertDefaultData();
             AssertSaltedSha512HashIsUsed(script);
         }
 
@@ -57,30 +57,38 @@ namespace Bonobo.Git.Server.Test
                 Assert.Fail("Sha512 password does not need to be upgraded.");
             };
             var passwordService = new PasswordService(updateHook);
-            bool isCorrect = passwordService
-                .ComparePassword(DefaultAdminPassword, DefaultAdminUserName, DefaultAdminHash);
+
+            //Act
+            var isCorrect = passwordService.ComparePassword(DefaultAdminPassword, DefaultAdminUserName, DefaultAdminHash);
+
+            //Assert
             Assert.IsTrue(isCorrect);
         }
 
         [TestMethod]
         public void WrongSha512PasswordsWontBeUpgraded()
         {
+            //Arrange
             Action<string, string> updateHook = (username, password) =>
             {
                 Assert.Fail("Wrong sha512 password must not be upgraded.");
             };
             var passwordService = new PasswordService(updateHook);
-            bool isCorrect = passwordService
-                .ComparePassword("1" + DefaultAdminPassword, DefaultAdminUserName, DefaultAdminHash);
+
+            //Act
+            var isCorrect = passwordService.ComparePassword("1" + DefaultAdminPassword, DefaultAdminUserName, DefaultAdminHash);
+
+            //Assert
             Assert.IsFalse(isCorrect);
         }
 
         [TestMethod]
         public void CorrectMd5PasswordsWillBeUpgraded()
         {
-            int correctUpgradeHookCalls = 0;
-            var username = DefaultAdminUserName;
-            var password = DefaultAdminPassword;
+            //Arrange
+            var correctUpgradeHookCalls = 0;
+            const string username = DefaultAdminUserName;
+            const string password = DefaultAdminPassword;
             Action<string, string> updateHook = (updateUsername, updatePassword) =>
             {
                 Assert.AreEqual(username, updateUsername);
@@ -88,8 +96,11 @@ namespace Bonobo.Git.Server.Test
                 ++correctUpgradeHookCalls;
             };
             var passwordService = new PasswordService(updateHook);
-            bool isCorrect = passwordService
-                .ComparePassword(password, username, Md5DefaultAdminHash);
+
+            //Act
+            var isCorrect = passwordService.ComparePassword(password, username, Md5DefaultAdminHash);
+
+            //Assert
             Assert.IsTrue(isCorrect);
             Assert.AreEqual(1, correctUpgradeHookCalls, "Correct md5 password should be upgraded exactly once.");
         }
@@ -97,13 +108,17 @@ namespace Bonobo.Git.Server.Test
         [TestMethod]
         public void WrongMd5PasswordsWontBeUpgraded()
         {
+            //Arrange
             Action<string, string> updateHook = (s, s1) =>
             {
                 Assert.Fail("Wrong md5 password must not be upgraded.");
             };
             var passwordService = new PasswordService(updateHook);
-            bool isCorrect = passwordService
-                .ComparePassword("1" + DefaultAdminPassword, DefaultAdminUserName, Md5DefaultAdminHash);
+
+            //Act
+            var isCorrect = passwordService.ComparePassword("1" + DefaultAdminPassword, DefaultAdminUserName, Md5DefaultAdminHash);
+
+            //Assert
             Assert.IsFalse(isCorrect);
         }
     }

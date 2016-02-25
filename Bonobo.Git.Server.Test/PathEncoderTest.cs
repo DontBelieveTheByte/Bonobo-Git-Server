@@ -72,19 +72,19 @@ namespace Bonobo.Git.Server.Test
         [TestMethod]
         public void SlashEncodedByDefault()
         {
-            Assert.AreEqual(0, PathEncoder.Encode("abc/def/ghi").Where(c => '/' == c).Count());
+            Assert.AreEqual(0, PathEncoder.Encode("abc/def/ghi").Count(c => '/' == c));
         }
 
         [TestMethod]
         public void AllowSlashTrue()
         {
-            Assert.AreEqual(2, PathEncoder.Encode("abc/def/ghi", allowSlash: true).Where(c => '/' == c).Count());
+            Assert.AreEqual(2, PathEncoder.Encode("abc/def/ghi", allowSlash: true).Count(c => '/' == c));
         }
 
         [TestMethod]
         public void AllowSlashFalse()
         {
-            Assert.AreEqual(0, PathEncoder.Encode("abc/def/ghi", allowSlash: false).Where(c => '/' == c).Count());
+            Assert.AreEqual(0, PathEncoder.Encode("abc/def/ghi", allowSlash: false).Count(c => '/' == c));
         }
 
         [TestMethod]
